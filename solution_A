@@ -4,7 +4,7 @@
 
 using namespace std; 
 
-vector<int> PrefixFunction(string s) {
+vector<int> PrefixFunction(const string& s) {
   int n = s.length();  
   vector<int> pi(n);
   for (int i = 1; i < n; ++i) {
@@ -20,6 +20,20 @@ vector<int> PrefixFunction(string s) {
   return pi;
 }
 
+vector<int> FinOccurrences(const string& str, const string& obr) {
+  vector<int> positions;
+  int obr_len = obr.length();
+
+  vector<int> p = PrefixFunction(obr + '#' + str);
+
+  for (int i = obr_len + 1; i < p.size(); ++i) {
+    if (p[i] == obr_len) {
+      positions.push_back(i - 2 * obr_len);
+    }
+  }
+  return positions;
+}
+
 int main() {
   string str;
   string obr;
@@ -27,14 +41,10 @@ int main() {
   cin >> str;
   cin >> obr;
 
-  string s = obr + '#' + str;
+  vector<int> positions = FinOccurrences(str, obr);
 
-  vector<int> p = PrefixFunction(s);
-
-  for (int i = obr.length() + 1; i < p.size(); ++i) { 
-    if (p[i] == obr.length()) { 
-      cout << i - 2 * obr.length() << endl; 
-    }
+  for (int position : positions) {
+    cout << position << endl;
   }
 
   return 0;
