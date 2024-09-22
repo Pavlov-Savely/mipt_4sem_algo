@@ -2,74 +2,78 @@
 #include <string>
 #include <vector>
 
+using namespace std;
+
 class JoinView {
 public:
-  JoinView(const std::string &str, const std::string &obr, char delim = '#')
-      : str(str), obr(obr), delim(delim) {}
+  JoinView(const string &obr, const string &str, char separator)
+      : obr(obr), str(str), separator(separator) {}
 
-  char operator[](std::size_t index) const {
+  char operator[](size_t index) const {
     if (index < obr.length()) {
       return obr[index];
     } else if (index == obr.length()) {
-      return delim;
+      return separator;
     } else {
       return str[index - obr.length() - 1];
     }
   }
 
-  std::size_t length() const { return str.length() + obr.length() + 1; }
+  size_t length() const { return obr.length() + 1 + str.length(); }
 
 private:
-  const std::string &str;
-  const std::string &obr;
-  char delim;
+  const string &obr;
+  const string &str;
+  char separator;
 };
 
-void PrefixFunction(std::vector<int> &pi, const JoinView &s) {
-  const std::size_t &n = s.length();
-  pi[0] = 0;
+vector<int> FinOccurrences(const string &str, const string &obr) {
+  vector<int> positions;
+  int obr_len = obr.length();
 
-  for (std::size_t i = 1; i < n; ++i) {
-    int j = pi[i - 1];
-    while (j > 0 && s[i] != s[j]) {
+  JoinView joined(obr, str, '#');
+
+  vector<int> pi(obr_len + 1);
+
+  int j = 0;
+  for (int i = 1; i <= obr_len; ++i) {
+    while (j > 0 && joined[i] != joined[j]) {
       j = pi[j - 1];
     }
-    if (s[i] == s[j]) {
+    if (joined[i] == joined[j]) {
       j++;
     }
     pi[i] = j;
   }
-}
 
-std::vector<int> FinOccurrences(const std::string &str, const std::string &obr) {
-  std::vector<int> positions;
-  int obr_len = obr.length();
-
-  JoinView joined(str, obr);
-
-  std::vector<int> p(joined.length());
-
-  PrefixFunction(p, joined);
-
-  for (std::size_t i = obr_len + 1; i < p.size(); ++i) {
-    if (p[i] == obr_len) {
+  j = 0;
+  for (int i = obr_len + 1; i < joined.length(); ++i) {
+    while (j > 0 && joined[i] != joined[j]) {
+      j = pi[j - 1];
+    }
+    if (joined[i] == joined[j]) {
+      j++;
+    }
+    if (j == obr_len) {
       positions.push_back(i - 2 * obr_len);
+      j = pi[j - 1];
     }
   }
-  return std::move(positions);
+
+  return positions;
 }
 
 int main() {
-  std::string str;
-  std::string obr;
+  string str;
+  string obr;
 
-  std::cin >> str;
-  std::cin >> obr;
+  cin >> str;
+  cin >> obr;
 
-  std::vector<int> &&positions = FinOccurrences(str, obr);
+  vector<int> positions = FinOccurrences(str, obr);
 
   for (int position : positions) {
-    std::cout << position << std::endl;
+    cout << position << endl;
   }
 
   return 0;
